@@ -7,5 +7,8 @@ void main(List<String> arguments) {
     final value = list[i];
     sum = sum + value;
   }
-  print(sum);
+  print("Valor do primeiro código ${sum}");
+
+  final sum2 = list.reduce((value, element) => value + element);
+  print("Valor do segundo código ${sum2}");
 }
