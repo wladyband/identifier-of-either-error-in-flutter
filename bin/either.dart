@@ -2,20 +2,18 @@ import 'package:either/either.dart' as either;
 
 void main(List<String> arguments) {
   final result = signIn('teste', '123456');
-  result.when(
+  final resultMessage = result.when(
     (failure) {
       final message = {
         SignInFailure.notFound: 'Not found',
         SignInFailure.unauthorized: 'Invalid password',
         SignInFailure.unknow: 'Internal erro',
       }[failure];
-      print(message);
       return message;
     },
-    (sessionId) {
-      print('Success');
-    },
+    (sessionId) => 'Success',
   );
+  print(resultMessage);
 }
 
 Either signIn(String username, String password) {
@@ -43,14 +41,14 @@ class Either<SignInFailure, String> {
   factory Either.right(String value) {
     return Either._(null, value, false);
   }
-  when(
-    Function(SignInFailure) left,
-    Function(String) right,
+  String when(
+    String Function(SignInFailure) left,
+    String Function(String) right,
   ) {
     if (isLeft) {
-      left(_left!);
+      return left(_left!);
     } else {
-      right(_right!);
+      return right(_right!);
     }
   }
 }
