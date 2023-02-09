@@ -1,5 +1,3 @@
-import 'package:either/either.dart' as either;
-
 void main(List<String> arguments) {
   final result = signIn('teste', '123456');
   final resultMessage = result.when(
@@ -16,7 +14,7 @@ void main(List<String> arguments) {
   print(resultMessage);
 }
 
-Either signIn(String username, String password) {
+Either<SignInFailure, String> signIn(String username, String password) {
   if (username != 'teste') {
     return Either.left(SignInFailure.notFound);
   }
@@ -28,22 +26,22 @@ Either signIn(String username, String password) {
 
 enum SignInFailure { notFound, unauthorized, unknow }
 
-class Either<SignInFailure, String> {
-  final SignInFailure? _left;
-  final String? _right;
+class Either<Left, Right> {
+  final Left? _left;
+  final Right? _right;
   final bool isLeft;
 
   Either._(this._left, this._right, this.isLeft);
 
-  factory Either.left(SignInFailure failure) {
+  factory Either.left(Left failure) {
     return Either._(failure, null, true);
   }
-  factory Either.right(String value) {
+  factory Either.right(Right value) {
     return Either._(null, value, false);
   }
-  String when(
-    String Function(SignInFailure) left,
-    String Function(String) right,
+  T when<T>(
+    T Function(Left) left,
+    T Function(Right) right,
   ) {
     if (isLeft) {
       return left(_left!);
