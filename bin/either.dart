@@ -2,34 +2,55 @@ import 'package:either/either.dart' as either;
 
 void main(List<String> arguments) {
   final result = signIn('teste', '123456');
-
-  if (result is SignInFailure) {
-    late final String message;
-    switch (result) {
-      case SignInFailure.notFound:
-        message = 'user not found';
-        break;
-      case SignInFailure.unauthorized:
-        message = 'invalid password';
-        break;
-      case SignInFailure.unknow:
-        message = 'internal erro';
-        break;
-    }
-    print(message);
-  } else {
-    print("success ${result}");
-  }
+  result.when(
+    (failure) {
+      final message = {
+        SignInFailure.notFound: 'Not found',
+        SignInFailure.unauthorized: 'Invalid password',
+        SignInFailure.unknow: 'Internal erro',
+      }[failure];
+      print(message);
+      return message;
+    },
+    (sessionId) {
+      print('Success');
+    },
+  );
 }
 
-dynamic signIn(String username, String password) {
+Either signIn(String username, String password) {
   if (username != 'teste') {
-    return SignInFailure.notFound;
+    return Either.left(SignInFailure.notFound);
   }
   if (password != '123456') {
-    return SignInFailure.unauthorized;
+    return Either.left(SignInFailure.unauthorized);
   }
-  return 'userId';
+  return Either.right('sessionId');
 }
 
 enum SignInFailure { notFound, unauthorized, unknow }
+
+class Either<SignInFailure, String> {
+  final SignInFailure? _left;
+  final String? _right;
+  final bool isLeft;
+
+  Either._(this._left, this._right, this.isLeft);
+
+  factory Either.left(SignInFailure failure) {
+    return Either._(failure, null, true);
+  }
+  factory Either.right(String value) {
+    return Either._(null, value, false);
+  }
+  when(
+    Function(SignInFailure) left,
+    Function(String) right,
+  ) {
+    if (isLeft) {
+      left(_left!);
+    } else {
+      right(_right!);
+    }
+  }
+}
